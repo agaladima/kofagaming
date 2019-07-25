@@ -1,0 +1,20 @@
+{
+  "dashboards": [
+    {
+      "url": "https://public.tableau.com/views/Findthebestdestinationforsummer2019/BestDestination?:embed=y&:embed_code_version=3&:loadOrderID=0&:display_count=yes",
+      "group": "Event"
+    },
+    {
+      "url": "https://public.tableau.com/views/AgendaMedellnODS/Portada?:embed=y&:embed_code_version=3&:loadOrderID=0&:display_count=yes",
+      "group": "Marketing"
+    },
+    {
+      "url": "https://public.tableau.com/views/NFLReceiverRoutes/ReceiverRoutes?:embed=y&:embed_code_version=3&:loadOrderID=0&:display_count=yes",
+      "group": "Research"
+    },
+    {
+      "url": "https://public.tableau.com/views/StarcraftIIPlayerNetworkNarrow/StarcraftIIPlayerNetwork?:embed=y&:embed_code_version=3&:loadOrderID=0&:display_count=yes",
+      "group": "IT"
+    }
+  ]
+}
