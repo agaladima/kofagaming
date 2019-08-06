@@ -24,7 +24,7 @@ class Dashboards extends Component {
           redirect: false,
           userEmail: '',
           modalIsOpen: false,
-          koyns: 0
+          koyn: 0
         };
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -70,41 +70,44 @@ class Dashboards extends Component {
       // .catch(function(err){
       //   console.log(err);
       // });
-      var currUser = [];
+
       admin.auth().onAuthStateChanged((user) => {
         if(user === null) {
           this.setState({redirect: true});
         }
         this.setState({userEmail: user.email});
-        // Add a new document in collection "cities" with ID 'LA'
-        var userRef = db.collection('users').doc(user.uid);
-
-        // var setWithOptions = userRef.set(data, {merge: true});
-        let theKoyns = 0;
-
-        db.collection("userData").where("email", "==", this.state.userEmail)
-        .onSnapshot(function(querySnapshot) {
-
-            querySnapshot.forEach(function(doc) {
-                currUser.push(doc.data());
-                console.log(doc.data());
-            });
-            theKoyns = currUser[0].koyns;
-            // this.setState({koyns: theKoyns});
-            console.log("Current Koyns:", currUser[0].koyns);
-            console.log("Observe data:", currUser);
-        });
-        // this.setState({koyns: theKoyns});
-        // this.setState({koyns: currUser[0].koyns});
-        console.log(this.state.koyns);
-        console.log('koyns: ', currUser.length);
+        this.loadData();
+        this.setState({koyn: 13});
       });
-      console.log('Outside Auth', currUser);
     }
 
     loadData() {
       console.log('clicked');
+      var currUser = [];
+      let theKoyns = 0;
 
+      // var setWithOptions = userRef.set(data, {merge: true});
+
+      db.collection("userData").where("email", "==", this.state.userEmail)
+      .onSnapshot(function(querySnapshot) {
+        querySnapshot.forEach(function(doc) {
+          currUser.push(doc.data());
+          theKoyns = currUser[0].koyns;
+          // this.setState({koyns: theKoyns});
+          console.log(currUser[0].koyns);
+          console.log(theKoyns);
+          // this.setState({koyns: currUser[0].koyns});
+        });
+        // theKoyns = currUser[0].koyns;
+        // console.log("Current Koyns:", currUser[0].koyns);
+        console.log("Observe data:", currUser);
+      });
+      // this.setState({koyns: theKoyns});
+      // this.setState({koyns: currUser[0].koyns});
+      console.log(this.state.koyn);
+      console.log('koyns: ', currUser.length);
+      console.log('Outside Auth', currUser);
+      console.log('theKoyns', theKoyns);
     }
 
     // reset email
@@ -154,7 +157,7 @@ class Dashboards extends Component {
               <div className="widgRow">
                 <div className="WidgetItem">
                   <h4>KoynCount</h4>
-                  <Badge>{this.state.koyns}</Badge>
+                  <Badge>{this.state.koyn}</Badge>
                 </div>
                 <div className="WidgetItem">
                   <h4>TotalMatchesPlayed</h4>
