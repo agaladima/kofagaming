@@ -105,6 +105,7 @@ class Dashboards extends Component {
       // this.setState({koyns: theKoyns});
       // this.setState({koyns: currUser[0].koyns});
       console.log(this.state.koyn);
+      console.log(this.props.dataSent);
       console.log('koyns: ', currUser.length);
       console.log('Outside Auth', currUser);
       console.log('theKoyns', theKoyns);

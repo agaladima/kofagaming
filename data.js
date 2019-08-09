@@ -6,7 +6,16 @@ const Schema = mongoose.Schema;
 const DataSchema = new Schema(
   {
     id: Number,
-    message: String
+    message: String,
+    game: String,
+    wager: Number,
+    date: Date,
+    system: String,
+    email: String,
+    oppemail: String,
+    reviewStatus: Number,
+    eventID: Number,
+    details: String
   },
   { timestamps: true }
 );

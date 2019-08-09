@@ -1,87 +1,49 @@
-const mongoose = require('mongoose');
 const express = require('express');
-var cors = require('cors');
-const bodyParser = require('body-parser');
-const logger = require('morgan');
-const Data = require('./data');
-
-const API_PORT = 3001;
 const app = express();
-app.use(cors());
-const router = express.Router();
+const bodyParser = require('body-parser');
+const mongoClient = require("mongodb").MongoClient;
+const objectID = require('mongodb').ObjectID;
 
-// this is our MongoDB database
-const dbRoute =
-  'mongodb+srv://arum-g:<password>@kofatest-uk4b3.mongodb.net/test?retryWrites=true&w=majority';
+const port = process.env.PORT || 5000;
 
-// connects our back end code with the database
-mongoose.connect(dbRoute, { useNewUrlParser: true });
+const CONNECTION_URL = 'mongodb+srv://arum:luvrhater12@kofatest-uk4b3.mongodb.net/test?retryWrites=true&w=majority';
+const DATABASE_NAME = 'kofa';
 
-let db = mongoose.connection;
-
-db.once('open', () => console.log('connected to the database'));
-
-// checks if connection with the database is successful
-db.on('error', console.error.bind(console, 'MongoDB connection error:'));
-
-// (optional) only made for logging and
-// bodyParser, parses the request body to be a readable json format
-app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use(logger('dev'));
+app.use(bodyParser.urlencoded({extended: true}));
 
-// this is our get method
-// this method fetches all available data in our database
-router.get('/getData', (req, res) => {
-  Data.find((err, data) => {
-    if (err) return res.json({ success: false, error: err });
-    return res.json({ success: true, data: data });
-  });
-});
-
-// this is our update method
-// this method overwrites existing data in our database
-router.post('/updateData', (req, res) => {
-  const { id, update } = req.body;
-  Data.findByIdAndUpdate(id, update, (err) => {
-    if (err) return res.json({ success: false, error: err });
-    return res.json({ success: true });
-  });
-});
-
-// this is our delete method
-// this method removes existing data in our database
-router.delete('/deleteData', (req, res) => {
-  const { id } = req.body;
-  Data.findByIdAndRemove(id, (err) => {
-    if (err) return res.send(err);
-    return res.json({ success: true });
-  });
-});
-
-// this is our create methid
-// this method adds new data in our database
-router.post('/putData', (req, res) => {
-  let data = new Data();
-
-  const { id, message } = req.body;
-
-  if ((!id && id !== 0) || !message) {
-    return res.json({
-      success: false,
-      error: 'INVALID INPUTS',
+// log that the server is up and running
+app.listen(port, () => {
+  mongoClient.connect(CONNECTION_URL, { useNewUrlParser: true }, function(error, client) {
+    if(error) {
+      console.log('Error occured whilst connecting to MongoDB Atlas...\n', error);
+    }
+    console.log('Connected...');
+    console.log(`Listening on port ${port}`);
+    const db = client.db(DATABASE_NAME);
+    const collection = db.collection('users');
+    collection.insertOne({
+      "email": "arum@kb.com",
+      "fname": "AJ",
+      "koyns": 17,
+      "lname": "Bulus",
+      "system": "Xbox1"
     });
-  }
-  data.message = message;
-  data.id = id;
-  data.save((err) => {
-    if (err) return res.json({ success: false, error: err });
-    return res.json({ success: true });
+    console.log(collection.find({}));
+    client.close();
+    // database = client.db(DATABASE_NAME);
+    // collection = database.collection('people');
+    // console.log(`Connected to ${DATABASE_NAME}!`);
   });
 });
 
-// append /api for our http requests
-app.use('/api', router);
+// create a GET route
+app.get('/express_backend', (req, res) => {
+  res.send({ express: 'YOUR EXPRESS BACKEND IS CONNECTED TO REACT'});
+});
 
-// launch our backend into a port
-app.listen(API_PORT, () => console.log(`LISTENING ON PORT ${API_PORT}`));
+
+
+
+
+// https://medium.com/@maison.moa/setting-up-an-express-backend-server-for-create-react-app-bc7620b20a61
