@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
+const cors = require('cors');
 const mongoClient = require("mongodb").MongoClient;
 const objectID = require('mongodb').ObjectID;
 
@@ -9,6 +10,7 @@ const port = process.env.PORT || 5000;
 const CONNECTION_URL = 'mongodb+srv://arum:luvrhater12@kofatest-uk4b3.mongodb.net/test?retryWrites=true&w=majority';
 const DATABASE_NAME = 'kofa';
 
+app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
@@ -36,6 +38,8 @@ app.listen(port, () => {
     // console.log(`Connected to ${DATABASE_NAME}!`);
   });
 });
+
+// This link is for sending data to mongodb from react https://stackoverflow.com/questions/42890055/insert-mongodb-document-with-react-js
 
 // create a GET route
 app.get('/express_backend', (req, res) => {
