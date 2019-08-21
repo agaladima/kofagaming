@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoClient = require("mongodb").MongoClient;
 const objectID = require('mongodb').ObjectID;
+// import User from 'userRegistrationModel';
 
 const port = process.env.PORT || 5000;
 
@@ -43,10 +44,20 @@ app.listen(port, () => {
 
 // create a GET route
 app.get('/express_backend', (req, res) => {
-  res.send({ express: 'YOUR EXPRESS BACKEND IS CONNECTED TO REACT'});
+  res.send({ express: `YOUR EXPRESS BACKEND IS CONNECTED TO REACT on port ${port}`});
 });
 
-
+// post route to add new registered user data to MongoDB
+app.post('/register', (req, res) => {
+  let userData = new User(req.body);
+  userData.save()
+  .then(item => {
+    res.send("User successfully added to database");
+  })
+  .catch(err => {
+    res.status(400).send("Unable to save user to database");
+  });
+});
 
 
 
