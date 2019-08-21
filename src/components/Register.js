@@ -29,7 +29,8 @@ class Register extends Component {
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.signup = this.signup.bind(this);
-        this.addCollection = this.addCollection.bind(this);
+        // this.addCollection = this.addCollection.bind(this);
+        this.sendToBack = this.sendToBack.bind(this);
     }
 
     handleChange(e) {
@@ -43,25 +44,46 @@ class Register extends Component {
         // this.setState({team});
     }
 
-    addCollection(){
-      db.collection('userData').doc(this.state.email).set({
+    // This functino is outdated
+    // addCollection(){
+    //   db.collection('userData').doc(this.state.email).set({
+    //     fname: this.state.fname,
+    //     lname: this.state.lname,
+    //     email: this.state.email,
+    //     system: this.state.system,
+    //     koyns: 10
+    //   })
+    //   .then(function(){
+    //     console.log('Document successfully written.');
+    //   })
+    //   .catch(function(error){
+    //     console.error('Error writing document: ', error);
+    //   });
+    // }
+
+    // Function that sends data to the backend to be then send to mongodb
+    sendToBack(){
+      let data = {
         fname: this.state.fname,
         lname: this.state.lname,
         email: this.state.email,
         system: this.state.system,
         koyns: 10
+      };
+
+      fetch('http://localhost:5000/register' , {
+        method: "POST",
+        headers: {
+          'Content-type': 'application/json'
+        },
+        body: JSON.stringify(data)
       })
-      .then(function(){
-        console.log('Document successfully written.');
-      })
-      .catch(function(error){
-        console.error('Error writing document: ', error);
-      });
+      .then((result) => result.json())
+      .then((info) => { console.log(info); });
     }
 
     signup(e){
       e.preventDefault();
-      this.addCollection();
 
       admin.auth().createUserWithEmailAndPassword(this.state.email, this.state.password)
       .then(function(user) {
@@ -81,7 +103,8 @@ class Register extends Component {
 
     handleSubmit(e) {
         e.preventDefault();
-        this.signup(e)
+        this.signup(e);
+        this.sendToBack();
         console.log('The form was submitted with the following data:');
     }
 

@@ -25,14 +25,16 @@ app.listen(port, () => {
     console.log(`Listening on port ${port}`);
     const db = client.db(DATABASE_NAME);
     const collection = db.collection('users');
-    collection.insertOne({
-      "email": "arum@kb.com",
-      "fname": "AJ",
-      "koyns": 17,
-      "lname": "Bulus",
-      "system": "Xbox1"
-    });
-    console.log(collection.find({}));
+
+    // console.log('on line 29',userDups);
+    // collection.insertOne({
+    //   "email": "arum@kb.com",
+    //   "fname": "AJ",
+    //   "koyns": 17,
+    //   "lname": "Bulus",
+    //   "system": "Xbox1"
+    // });
+    // console.log(collection.find({}));
     client.close();
     // database = client.db(DATABASE_NAME);
     // collection = database.collection('people');
@@ -47,15 +49,45 @@ app.get('/express_backend', (req, res) => {
   res.send({ express: `YOUR EXPRESS BACKEND IS CONNECTED TO REACT on port ${port}`});
 });
 
+app.get('/register', (req, res) => {
+  res.send({data: req.body});
+});
+
 // post route to add new registered user data to MongoDB
 app.post('/register', (req, res) => {
-  let userData = new User(req.body);
-  userData.save()
-  .then(item => {
-    res.send("User successfully added to database");
-  })
-  .catch(err => {
-    res.status(400).send("Unable to save user to database");
+  console.log('the data:',req.body);
+  // Send user registration data to the DB if it doesn't exist already
+  let data = {
+    "email": req.body.email,
+    "fname": req.body.fname,
+    "lname": req.body.lname,
+    "koyns": req.body.koyns,
+    "system": req.body.system
+  };
+
+  // getting into the server
+  mongoClient.connect(CONNECTION_URL, { useNewUrlParser: true }, function(error, client) {
+    if(error) {
+      console.log('Error occured whilst connecting to MongoDB Atlas...\n', error);
+    }
+    console.log('Connected...');
+    console.log(`Listening on port ${port}`);
+    const db = client.db(DATABASE_NAME);
+    const collection = db.collection('users');
+
+
+    // Count the number of documents that match. If none, send to the // DB
+    collection.countDocuments({email: req.body.email})
+      .then(numDocs => {
+        // If there are any matches returned, we reject the submission and don't send to database
+        if( numDocs < 1 ) {
+          collection.insertOne(data);
+        }
+        // console.log(`${numDocs} documents match the specified query.`)
+      })
+      .catch(err => console.error("Failed to count documents: ", err));
+
+    // client.close();
   });
 });
 
