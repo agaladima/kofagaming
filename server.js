@@ -46,7 +46,7 @@ app.listen(port, () => {
 
 // create a GET route
 app.get('/express_backend', (req, res) => {
-  res.send({ express: `YOUR EXPRESS BACKEND IS CONNECTED TO REACT on port ${port}`});
+  res.send({ express: `YOUR EXPRESS BACKEND IS CONNECTED TO REACT on port ${port}  with ${email}`});
 });
 
 app.get('/register', (req, res) => {
@@ -82,15 +82,61 @@ app.post('/register', (req, res) => {
         // If there are any matches returned, we reject the submission and don't send to database
         if( numDocs < 1 ) {
           collection.insertOne(data);
+        } else {
+          console.log('Looks like that user is already in the DB!');
         }
         // console.log(`${numDocs} documents match the specified query.`)
       })
       .catch(err => console.error("Failed to count documents: ", err));
-
     // client.close();
   });
 });
 
+// Get email address when on page /dashboard
+let email;
+app.post('/dashboard', (req, res) => {
+  // get an individuals data
+  email = req.body.email;
+  console.log('this is the current user', email);
+});
+
+// Get data from server to display on page /dashboard
+app.get('/dashboard', (req, res) => {
+  let data;
+  // getting into the server
+  mongoClient.connect(CONNECTION_URL, { useNewUrlParser: true }, function(error, client) {
+    if(error) {
+      console.log('Error occured whilst connecting to MongoDB Atlas...\n', error);
+    }
+    const db = client.db(DATABASE_NAME);
+    const collection = db.collection('users');
+
+    // Get data from server
+    collection.findOne({email: email})
+      .then(items => {
+        console.log(`Number of koyns for this user ${items.koyns}`);
+        console.log(items);
+        // Put data in an object to send as a response to the client
+        data = {
+          email: items.email,
+          fname: items.fname,
+          lname: items.lname,
+          koyns: items.koyns,
+          system: items.system
+        };
+        // console.log(data);
+        res.send({userData: data});
+      })
+      .catch(err => console.error("Failed to count documents: ", err));
+    // client.close();
+  });
+});
+
+// create a GET route
+app.get('/activegame', (req, res) => {
+
+  res.send({ express: `YOUR EXPRESS BACKEND IS CONNECTED TO REACT on port ${port}`});
+});
 
 
 // https://medium.com/@maison.moa/setting-up-an-express-backend-server-for-create-react-app-bc7620b20a61

@@ -31,6 +31,7 @@ class Dashboards extends Component {
         this.resetEmail = this.resetEmail.bind(this);
 
         this.loadData = this.loadData.bind(this);
+        this.fetchData = this.fetchData.bind(this);
 
         // this.openModal = this.openModal.bind(this);
         this.afterOpenModal = this.afterOpenModal.bind(this);
@@ -48,37 +49,23 @@ class Dashboards extends Component {
     }
 
     componentDidMount(){
-      // var proxyUrl = 'https://cors-anywhere.herokuapp.com/',
-      //   targetUrl = 'https://api.spotify.com/v1/albums/6akEvsycLGftJxYudPjmqK/tracks?offset=0&limit=2';
-      // // Send the stored forms to the server
-      // fetch(targetUrl, {
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //     "Access-Control-Allow-Origin": "*",
-      //     "Access-Control-Allow-Credentials": true,
-      //     "Access-Control-Request-Method": "*",
-      //     "Access-Control-Allow-Headers": "Origin, Content-Type, X-Auth-Token"
-      //   }
-      // })
-      // .then(function(response){
-      //   //console.log(response);
-      //   return response.json();
-      // })
-      // .then(function(data){
-      //   console.log(data);
-      // })
-      // .catch(function(err){
-      //   console.log(err);
-      // });
-
+      // Get authenticated user's email address
       admin.auth().onAuthStateChanged((user) => {
         if(user === null) {
           this.setState({redirect: true});
         }
         this.setState({userEmail: user.email});
         this.loadData();
-        this.setState({koyn: 13});
+        this.fetchData();
+        // this.setState({koyn: 13});
       });
+    }
+
+    async fetchData(){
+      const currUserData = await fetch('http://localhost:5000/dashboard');
+      const jsonUser = await currUserData.json();
+      // console.log(jsonUser);
+      this.setState({koyn: jsonUser.userData.koyns});
     }
 
     loadData() {
@@ -87,6 +74,17 @@ class Dashboards extends Component {
       let theKoyns = 0;
 
       // var setWithOptions = userRef.set(data, {merge: true});
+      //  Send user email address to retrieve appropriate data from server
+      let data = {email: this.state.userEmail};
+      fetch('http://localhost:5000/dashboard' , {
+        method: "POST",
+        headers: {
+          'Content-type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+      .then((result) => result.json())
+      .then((info) => { console.log('info sent from dashboard',info); });
 
       db.collection("userData").where("email", "==", this.state.userEmail)
       .onSnapshot(function(querySnapshot) {
