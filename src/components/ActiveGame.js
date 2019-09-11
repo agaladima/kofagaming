@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import Select from 'react-select';
 import { admin } from '../firebase.js';
 import moment from 'moment';
@@ -36,7 +36,9 @@ class ActiveGame extends Component {
             oppemail: '',
             upload: '',
             reviewStatus: 0,
-            eventID: moment().format('X')
+            koyn: 0,
+            eventID: moment().format('X'),
+            redirect: false
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -46,6 +48,12 @@ class ActiveGame extends Component {
         this.addCollection = this.addCollection.bind(this);
         this.screenshotValidation = this.screenshotValidation.bind(this);
         this.eventValidation = this.eventValidation.bind(this);
+        this.fetchData = this.fetchData.bind(this);
+    }
+
+    componentDidMount(){
+      this.fetchData();
+      console.log('Number of Koyns: ', this.state.koyn);
     }
 
     handleChange(e) {
@@ -106,6 +114,15 @@ class ActiveGame extends Component {
       });
     }
 
+    // This function is to get data from the databaseRecord
+    async fetchData(){
+      const currUserData = await fetch('http://localhost:5000/activegame');
+      const jsonData = await currUserData.json();
+      // console.log(jsonUser);
+      this.setState({koyn: jsonData.userData.koyns});
+      console.log('FetchData: ', jsonData.userData.koyns);
+    }
+
     screenshotValidation(idNum){
       let file = this.state.upload;
       let numID = idNum;
@@ -124,9 +141,17 @@ class ActiveGame extends Component {
     }
 
     handleSubmit(e) {
-        e.preventDefault();
-        //console.log(moment().format());
+      e.preventDefault();
+      //console.log(moment().format());
 
+      // Need to make sure that the initiator email and opponent email are not the same
+      if(this.state.email == this.state.oppemail) {
+        window.alert("Hey hey now! You can't be your own opponent. That sorcery doesn't exist...");
+      } else if (this.state.wager > this.state.koyn-5) {
+        window.alert("Oops! You can't wager your entire Koyn collection. You have to leave at least 5 Koyns!");
+      } else if(this.state.wager <= 0) {
+        window.alert("Hey! Make sure you wager something kind person.")
+      } else {
         this.screenshotValidation(this.state.eventID);
         let user = admin.auth().currentUser;
         let data = {
@@ -140,15 +165,25 @@ class ActiveGame extends Component {
           eventID: this.state.eventID,
           details: this.state.details
         };
-        this.eventValidation(data, this.state.eventID);
 
-        // console.log(user.uid+moment().format());
-        // this.signup(e);
-        console.log('The form was submitted with the following data:');
+        fetch('http://localhost:5000/activegame' , {
+          method: "POST",
+          headers: {
+            'Content-type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        })
+        .then((result) => result.json())
+        .then((info) => { console.log(info); });
+      this.eventValidation(data, this.state.eventID);
+      this.setState({redirect: true});
+      }
     }
 
     render() {
-      const {team} = this.state;
+      if(this.state.redirect === true){
+        return <Redirect to='/' />
+      }
         return (
         <div className="FormCenter">
             <form onSubmit={this.handleSubmit} className="FormFields">

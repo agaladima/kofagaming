@@ -93,7 +93,7 @@ app.post('/register', (req, res) => {
 });
 
 // Get email address when on page /dashboard
-let email;
+const email;
 app.post('/dashboard', (req, res) => {
   // get an individuals data
   email = req.body.email;
@@ -134,9 +134,65 @@ app.get('/dashboard', (req, res) => {
 
 // create a GET route
 app.get('/activegame', (req, res) => {
-
-  res.send({ express: `YOUR EXPRESS BACKEND IS CONNECTED TO REACT on port ${port}`});
+  let data;
+  // getting into the server
+  mongoClient.connect(CONNECTION_URL, { useNewUrlParser: true }, function(error, client) {
+    if(error) {
+      console.log('Error occured whilst connecting to MongoDB Atlas...\n', error);
+    }
+    const db = client.db(DATABASE_NAME);
+    const collection = db.collection('users');
+    // console.log(email);
+    // Get data from server
+    collection.findOne({email: email})
+      .then(items => {
+        console.log(`Number of koyns for this user ${items.koyns}`);
+        console.log(items);
+        // Put data in an object to send as a response to the client
+        data = {
+          email: items.email,
+          fname: items.fname,
+          lname: items.lname,
+          koyns: items.koyns,
+          system: items.system
+        };
+        // console.log(data);
+        res.send({userData: data});
+      })
+      .catch(err => console.error("Failed to count documents: ", err));
+    // client.close();
+  });
 });
 
+// Activegame route to send data to server
+app.post('/activegame', (req, res) => {
+  console.log(req.body);
+  let data = {
+    game: req.body.game,
+    wager: req.body.wager,
+    date: req.body.date,
+    system: req.body.system,
+    email: req.body.email,
+    oppemail: req.body.oppemail,
+    reviewStatus: req.body.reviewStatus,
+    eventID: req.body.eventID,
+    details: req.body.details
+  };
+  // getting into the server and add activegame
+  mongoClient.connect(CONNECTION_URL, { useNewUrlParser: true }, function(error, client) {
+    if(error) {
+      console.log('Error occured whilst connecting to MongoDB Atlas...\n', error);
+    }
+    console.log('Connected...');
+    console.log(`Listening on port ${port}`);
+    const db = client.db(DATABASE_NAME);
+    const collection = db.collection('gameActivated');
+
+    //send client side data from activate game to MongoDB
+    collection.insertOne(data);
+
+    // collection.insertOne(data);
+  });
+});
 
 // https://medium.com/@maison.moa/setting-up-an-express-backend-server-for-create-react-app-bc7620b20a61
