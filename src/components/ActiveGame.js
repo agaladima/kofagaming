@@ -37,6 +37,7 @@ class ActiveGame extends Component {
             upload: '',
             reviewStatus: 0,
             koyn: 0,
+            koynsAvailable: 0,
             eventID: moment().format('X'),
             redirect: false
         };
@@ -49,6 +50,7 @@ class ActiveGame extends Component {
         this.screenshotValidation = this.screenshotValidation.bind(this);
         this.eventValidation = this.eventValidation.bind(this);
         this.fetchData = this.fetchData.bind(this);
+        this.koynsAvbFunc = this.koynsAvbFunc.bind(this);
     }
 
     componentDidMount(){
@@ -120,6 +122,8 @@ class ActiveGame extends Component {
       const jsonData = await currUserData.json();
       // console.log(jsonUser);
       this.setState({koyn: jsonData.userData.koyns});
+      // This is to get the available koyns to subtract from available koyns and
+      this.setState({koynsAvailable: jsonData.userData.koynsAvailable});
       console.log('FetchData: ', jsonData.userData.koyns);
     }
 
@@ -131,6 +135,19 @@ class ActiveGame extends Component {
       screenshotRef.put(file).then(function(snapshot) {
         // console.log('Uploaded a blob or file!', this.state.eventID);
       });
+    }
+
+    koynsAvbFunc(){
+      let data = {data: "Not really significant"};
+      fetch('http://localhost:5000/koynsavailable' , {
+        method: "POST",
+        headers: {
+          'Content-type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+      .then((result) => result.json())
+      .then((info) => { console.log(info); });
     }
 
     eventValidation(data, eventID){
@@ -147,8 +164,8 @@ class ActiveGame extends Component {
       // Need to make sure that the initiator email and opponent email are not the same
       if(this.state.email == this.state.oppemail) {
         window.alert("Hey hey now! You can't be your own opponent. That sorcery doesn't exist...");
-      } else if (this.state.wager > this.state.koyn-5) {
-        window.alert("Oops! You can't wager your entire Koyn collection. You have to leave at least 5 Koyns!");
+      } else if (this.state.wager > this.state.koynsAvailable) {
+        window.alert(`Oops! You can't wager your entire Koyn collection. You have ${this.state.koynsAvailable} Koyns!`);
       } else if(this.state.wager <= 0) {
         window.alert("Hey! Make sure you wager something kind person.")
       } else {
@@ -165,7 +182,6 @@ class ActiveGame extends Component {
           eventID: this.state.eventID,
           details: this.state.details
         };
-
         fetch('http://localhost:5000/activegame' , {
           method: "POST",
           headers: {
@@ -175,6 +191,7 @@ class ActiveGame extends Component {
         })
         .then((result) => result.json())
         .then((info) => { console.log(info); });
+        this.koynsAvbFunc();
       this.eventValidation(data, this.state.eventID);
       this.setState({redirect: true});
       }

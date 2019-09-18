@@ -68,8 +68,8 @@ class Register extends Component {
         lname: this.state.lname,
         email: this.state.email,
         system: this.state.system,
-        koyns: 10,
-        koynsAvailable: 10
+        koyns: 100,
+        koynsAvailable: 95
       };
 
       fetch('http://localhost:5000/register' , {

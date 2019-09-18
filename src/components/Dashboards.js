@@ -24,7 +24,8 @@ class Dashboards extends Component {
           redirect: false,
           userEmail: '',
           modalIsOpen: false,
-          koyn: 0
+          koyn: 0,
+          koynsAvailable: 0
         };
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -66,6 +67,7 @@ class Dashboards extends Component {
       const jsonUser = await currUserData.json();
       // console.log(jsonUser);
       this.setState({koyn: jsonUser.userData.koyns});
+      this.setState({koynsAvailable: jsonUser.userData.koynsAvailable});
     }
 
     loadData() {
@@ -156,7 +158,8 @@ class Dashboards extends Component {
               <div className="widgRow">
                 <div className="WidgetItem">
                   <h4>KoynCount</h4>
-                  <Badge>{this.state.koyn}</Badge>
+                  <Badge>Koyns: {this.state.koyn}</Badge><br/>
+                  <Badge>Koyns available: {this.state.koynsAvailable}</Badge>
                 </div>
                 <div className="WidgetItem">
                   <h4>TotalMatchesPlayed</h4>

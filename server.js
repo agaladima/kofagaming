@@ -62,6 +62,7 @@ app.post('/register', (req, res) => {
     "fname": req.body.fname,
     "lname": req.body.lname,
     "koyns": req.body.koyns,
+    "koynsAvailable": req.body.koynsAvailable,
     "system": req.body.system
   };
 
@@ -93,7 +94,11 @@ app.post('/register', (req, res) => {
 });
 
 // Get email address when on page /dashboard
-const email;
+let email,
+  koynsTot,
+  wager,
+  koynsAv;
+
 app.post('/dashboard', (req, res) => {
   // get an individuals data
   email = req.body.email;
@@ -117,11 +122,14 @@ app.get('/dashboard', (req, res) => {
         console.log(`Number of koyns for this user ${items.koyns}`);
         console.log(items);
         // Put data in an object to send as a response to the client
+        koynsTot = items.koyns;
+        koynsAv = items.koynsAvailable;
         data = {
           email: items.email,
           fname: items.fname,
           lname: items.lname,
           koyns: items.koyns,
+          koynsAvailable: items.koynsAvailable,
           system: items.system
         };
         // console.log(data);
@@ -146,15 +154,18 @@ app.get('/activegame', (req, res) => {
     // Get data from server
     collection.findOne({email: email})
       .then(items => {
-        console.log(`Number of koyns for this user ${items.koyns}`);
+        // console.log(`Number of koyns for this user ${items.koyns}`);
         console.log(items);
+        // koynsAv = items.koynsAvailable;
+        // console.log(koynsAv);
         // Put data in an object to send as a response to the client
         data = {
           email: items.email,
           fname: items.fname,
           lname: items.lname,
           koyns: items.koyns,
-          system: items.system
+          system: items.system,
+          koynsAvailable: items.koynsAvailable
         };
         // console.log(data);
         res.send({userData: data});
@@ -167,6 +178,7 @@ app.get('/activegame', (req, res) => {
 // Activegame route to send data to server
 app.post('/activegame', (req, res) => {
   console.log(req.body);
+  wager = req.body.wager;
   let data = {
     game: req.body.game,
     wager: req.body.wager,
@@ -192,6 +204,45 @@ app.post('/activegame', (req, res) => {
     collection.insertOne(data);
 
     // collection.insertOne(data);
+  });
+});
+
+// route to edit koynsAvailable
+app.post('/koynsavailable', (req, res) => {
+  // getting into the server and add activegame
+  mongoClient.connect(CONNECTION_URL, { useNewUrlParser: true }, function(error, client) {
+    if(error) {
+      console.log('Error occured whilst connecting to MongoDB Atlas...\n', error);
+    }
+    console.log('Connected...');
+    console.log(`Listening on port ${port}`);
+    const db = client.db(DATABASE_NAME);
+    const collection = db.collection('users');
+    // insert koynsAv-wager...if it's < 0 then you reject it else replace koynsAvailable in DB
+    let koynsAvb = koynsTot-wager;
+
+    // Find the document that has the current email
+    const query = { "email": email };
+    // Set some fields in that document
+    // Return the updated document instead of the original document
+    const options = { returnNewDocument: true };
+    
+    const update = {
+      "$set": {
+        "koynsAvailable": koynsAvb
+      }
+    };
+    // get the user and edit the koynsAvailable value
+    collection.findOneAndUpdate(query, update, options)
+    .then(updatedDocument => {
+      if(updatedDocument) {
+        console.log(`Successfully updated document: ${updatedDocument}.`)
+      } else {
+        console.log("No document matches the provided query.")
+      }
+      return updatedDocument
+    })
+    .catch(err => console.error(`Failed to find and update document: ${err}`))
   });
 });
 
