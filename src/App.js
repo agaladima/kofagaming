@@ -15,89 +15,120 @@ import Register from './components/Register';
 import LastTen from './components/LastTen';
 import Events from './components/Events';
 import ActiveGame from './components/ActiveGame';
+import CurrentMatch from './components/CurrentMatch';
+import Policy from './components/Policy';
 
 class App extends Component {
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      user:{},
-      authenticated: false,
-      name: 'Arum',
-      data: '',
-      datas: null
-    };
-  }
-
-  componentWillMount() {
-    // lets us know whether the user is authenticated or not
-    this.removeAuthListener = admin.auth().onAuthStateChanged((user) => {
-      if(user) {
-        this.setState({authenticated: true, loading: false});
-
-      } else {
-        this.setState({authenticated: false, loading: false});
-        //console.log('state in unmount:', this.state.authenticated);
-      }
-    });
-  }
-
-  componentDidMount(){
-    // this.authListener();
-    // Call our fetch function below once the component mounts
-    this.callBackendAPI()
-      .then(res => this.setState({datas: res.userData}))
-      .catch(err => console.log(err));
-  }
-
-  // Fetches our GET route from the Express server. (Note the route we are fetching matches the GET route from server.js)
-  callBackendAPI = async () => {
-    const response = await fetch('/dashboard');
-    const body = await response.json();
-
-    if (response.status !== 200) {
-      throw Error(body.message)
+    constructor(props) {
+        super(props);
+        this.state = {
+            user: {},
+            authenticated: false,
+            name: 'Arum',
+            data: '',
+            datas: null
+        };
     }
-    return body;
-  };
 
-  componentWillUnmount() {
-    this.removeAuthListener();
-  }
+    componentWillMount() {
+        // lets us know whether the user is authenticated or not
+        this.removeAuthListener = admin.auth().onAuthStateChanged((user) => {
+            if (user) {
+                this.setState({ authenticated: true, loading: false });
 
-  authListener() {
-    admin.auth().onAuthStateChanged((user) => {
-      // console.log(user);
-      if(user) {
-        this.setState({user});
-      //  localStorage.setItem('user', user.uid);
-      } else {
-        this.setState({user: null});
-      //  localStorage.removeItem('user');
-      }
-    });
-  }
+            } else {
+                this.setState({ authenticated: false, loading: false });
+                //console.log('state in unmount:', this.state.authenticated);
+            }
+        });
+    }
 
-  render() {
-    return (
-      <BrowserRouter>
-        <div className="App">
-          <Navigation authenticated={this.state.authenticated} />
-          <Switch>
-            <Route exact path="/" component={Home} />
-            <Route path="/login" component={Login} />
-            <Route path="/contact" component={Contact} />
-            <Route path="/dashboards" render={(props) => <Dashboards {...props} dataSent={this.state.datas} />} />
-            <Route path="/logout" component={Logout} />
-            <Route path="/register" component={Register} />
-            <Route path="/lastten" component={LastTen} />
-            <Route path="/events" component={Events} />
-            <Route path="/activegame" component={ActiveGame} />
-          </Switch>
-        </div>
-      </BrowserRouter>
-    );
-  }
-}
+    componentDidMount() {
+        // this.authListener();
+        // Call our fetch function below once the component mounts
+        this.callBackendAPI()
+            .then(res => this.setState({ datas: res.userData }))
+            .catch(err => console.log(err));
+    }
 
-export default App;
+    // Fetches our GET route from the Express server. (Note the route we are fetching matches the GET route from server.js)
+    callBackendAPI = async() => {
+        const response = await fetch('/dashboard');
+        const body = await response.json();
+
+        if (response.status !== 200) {
+            throw Error(body.message)
+        }
+        return body;
+    };
+
+
+
+    componentWillUnmount() {
+        this.removeAuthListener();
+    }
+
+    authListener() {
+        admin.auth().onAuthStateChanged((user) => {
+            // console.log(user);
+            if (user) {
+                this.setState({ user });
+                //  localStorage.setItem('user', user.uid);
+            } else {
+                this.setState({ user: null });
+                //  localStorage.removeItem('user');
+            }
+        });
+    }
+
+    render() {
+        return ( 
+					<BrowserRouter>
+							<div className = "App">
+							<Navigation authenticated = { this.state.authenticated }/>
+							<Switch>
+							<Route exact path = "/"
+								component = { Home }
+							/>
+							<Route path = "/login"
+								component = { Login }
+							/>
+							<Route path = "/contact"
+								component = { Contact }
+							/>
+							<Route path = "/dashboards"
+								render = {
+									(props) => < Dashboards {...props }
+									dataSent = { this.state.datas }
+									/>}
+							/>
+							<Route path = "/logout"
+								component = { Logout }
+							/>
+							<Route path = "/register"
+								component = { Register }
+							/>
+							<Route path = "/lastten"
+								component = { LastTen }
+							/>
+							<Route path = "/events"
+								component = { Events }
+							/>
+							<Route path = "/activegame"
+								component = { ActiveGame }
+							/>
+							<Route path = "/currentmatch"
+								component = { CurrentMatch }
+							/>
+							<Route path = "/policy"
+								component = { Policy }
+							/>
+						</Switch>
+						</div>
+					</BrowserRouter>
+            );
+        }
+    }
+
+    export default App;

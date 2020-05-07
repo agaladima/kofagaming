@@ -63,7 +63,10 @@ app.post('/register', (req, res) => {
     "lname": req.body.lname,
     "koyns": req.body.koyns,
     "koynsAvailable": req.body.koynsAvailable,
-    "system": req.body.system
+    "system": req.body.system,
+    "gamerTag": req.body.gamerTag,
+    "dateCreated": req.body.dateCreated,
+    "promoCode": req.body.promoCode
   };
 
   // getting into the server
@@ -96,8 +99,8 @@ app.post('/register', (req, res) => {
 // Get email address when on page /dashboard
 let email,
   koynsTot,
-  wager,
-  koynsAv;
+  wager;
+let koynsAv = koynsTot-wager;
 
 app.post('/dashboard', (req, res) => {
   // get an individuals data
@@ -117,6 +120,7 @@ app.get('/dashboard', (req, res) => {
     const collection = db.collection('users');
 
     // Get data from server
+    // I need to find all and add them together
     collection.findOne({email: email})
       .then(items => {
         console.log(`Number of koyns for this user ${items.koyns}`);
@@ -178,7 +182,6 @@ app.get('/activegame', (req, res) => {
 // Activegame route to send data to server
 app.post('/activegame', (req, res) => {
   console.log(req.body);
-  wager = req.body.wager;
   let data = {
     game: req.body.game,
     wager: req.body.wager,
@@ -219,7 +222,7 @@ app.post('/koynsavailable', (req, res) => {
     const db = client.db(DATABASE_NAME);
     const collection = db.collection('users');
     // insert koynsAv-wager...if it's < 0 then you reject it else replace koynsAvailable in DB
-    let koynsAvb = koynsTot-wager;
+    koynsAv = koynsTot-wager;
 
     // Find the document that has the current email
     const query = { "email": email };
@@ -229,7 +232,7 @@ app.post('/koynsavailable', (req, res) => {
     
     const update = {
       "$set": {
-        "koynsAvailable": koynsAvb
+        "koynsAvailable": koynsAv
       }
     };
     // get the user and edit the koynsAvailable value
@@ -243,6 +246,73 @@ app.post('/koynsavailable', (req, res) => {
       return updatedDocument
     })
     .catch(err => console.error(`Failed to find and update document: ${err}`))
+  });
+});
+
+// create a GET route
+app.get('/currentmatch', (req, res) => {
+  let data;
+  // getting into the server
+  mongoClient.connect(CONNECTION_URL, { useNewUrlParser: true }, function(error, client) {
+    if(error) {
+      console.log('Error occured whilst connecting to MongoDB Atlas...\n', error);
+    }
+    const db = client.db(DATABASE_NAME);
+    const collection = db.collection('gameActivated');
+    // console.log(email);
+    
+    collection.find({email: email}).toArray()
+      .then(items => {
+        // console.log(`Number of koyns for this user ${items.koyns}`);
+        console.log(items);
+        // koynsAv = items.koynsAvailable;
+        // console.log(koynsAv);
+        // console.log(data);
+        res.send({userData: items});
+      })
+      .catch(err => console.error("Failed to count documents: ", err));
+    // client.close();
+  });
+});
+
+// create a GET route for total wager amount
+app.get('/getwager', (req, res) => {
+  let data;
+  // getting into the server
+  mongoClient.connect(CONNECTION_URL, { useNewUrlParser: true }, function(error, client) {
+    if(error) {
+      console.log('Error occured whilst connecting to MongoDB Atlas...\n', error);
+    }
+    const db = client.db(DATABASE_NAME);
+    const collection = db.collection('gameActivated');
+    // console.log(email);
+    // Get data from server { $and: [ { <expression1> }, { <expression2> } , ... , { <expressionN> } ] }
+    let query = { $and: [{email: email}, {reviewStatus: 0}]}
+    const options = {
+      "projection": { "_id": 0 },
+      "sort": { "name": 1 }
+    };
+    collection.find({ $and: [{email: email}, {reviewStatus: 0}]}).toArray()
+      .then(items => {
+        // console.log(`Number of koyns for this user ${items.koyns}`);
+        console.log(items);
+        let loopAdd = (array) => {
+          let wagerAll=0;
+          array.forEach(item => {
+            wagerAll+=parseInt(item.wager);
+          });
+          return wagerAll
+        }
+        console.log('loopAdd function:', loopAdd(items));
+        
+        wager = loopAdd(items);
+        // koynsAv = items.koynsAvailable;
+        // console.log(koynsAv);
+        // console.log(data);
+        res.send({wager: wager});
+      })
+      .catch(err => console.error("Failed to count documents: ", err));
+    // client.close();
   });
 });
 

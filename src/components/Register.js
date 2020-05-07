@@ -23,7 +23,9 @@ class Register extends Component {
             fname: '',
             lname: '',
             system: '',
-            koyns: 0
+            koyns: 0,
+            gamerTag: '',
+            dateCreated: new Date()
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -69,7 +71,10 @@ class Register extends Component {
         email: this.state.email,
         system: this.state.system,
         koyns: 100,
-        koynsAvailable: 95
+        koynsAvailable: 95,
+        gamerTag: this.state.gamerTag,
+        dateCreated: new Date(),
+        promoCode: `${this.state.gamerTag}${this.state.system}`
       };
 
       fetch('http://localhost:5000/register' , {

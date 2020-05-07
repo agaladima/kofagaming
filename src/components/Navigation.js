@@ -72,11 +72,15 @@ class Navigation extends Component {
                   style={customStyles}
                   contentLabel="About Modal"
                 >
-                  <h2 ref={subtitle => this.subtitle = subtitle}>About RPS</h2>
-                  <div>RPS is an internal reporting system for our various teams to keep track of stats and have visually appealing dashboards to help with improving workflow.</div>
+                  <h2 ref={subtitle => this.subtitle = subtitle}>About Kofa</h2>
+                  <div>Kofa is a platform that rewards gamers for doing what they love...gaming! If you're playing a MULTIPLAYER game, on the 'Cmd Center' tab, select 'Start a match', 
+                    fill in the information, and submit. You can bet a specific number of Koyns and if you win, you'll be awarded that Koyn amount. Koyns can be traded for
+                    an item on your dashboard page. Just make sure to look at the cost. If you have enough Koyns, you can purchase it and 
+                    get a code for that item. Later on, you'll get an email that you'll need to respond to with a screenshot of your screen
+                    after you win or lose. If you win, you'll be awarded your Koyns.</div>
                   <hr />
-                  <h2 ref={subtitle => this.subtitle = subtitle}>RPS Help</h2>
-                  <div>For help, email <a href={"mailto:errin.calhoun@jacobseye.com"}>errin.calhoun@jacobseye.com</a> or <a href={"mailto:arum.galadima@jacobseye.com"}>arum.galadima@jacobseye.com</a></div>
+                  <h2 ref={subtitle => this.subtitle = subtitle}>Kofa Help</h2>
+                  <div>For help, email <a href={"mailto:arum.galadima@jacobseye.com"}>arum.galadima@gmail.com</a></div>
                   <br />
                   <button onClick={this.closeModal}>close</button>
                 </Modal>

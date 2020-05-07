@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Grid, Row, Col, Badge, ListGroup, ListGroupItem, Button } from 'react-bootstrap';
+import { Grid, Row, Col, Badge, ListGroup, ListGroupItem, Button, ButtonGroup } from 'react-bootstrap';
 import { Link, Redirect } from 'react-router-dom';
 import {admin} from '../firebase.js';
 import TableauReport from 'tableau-react';
@@ -8,6 +8,7 @@ import axios from 'axios';
 import Dashes from '../Dashboards.json';
 import SubHeader from './SubHeader.js';
 import PrizeCarousel from './PrizeCarousel';
+import EachCurrentMatch from './EachCurrentMatch.js';
 
 // Initialize firestore
 let db = admin.firestore();
@@ -24,10 +25,8 @@ class Dashboards extends Component {
           redirect: false,
           userEmail: '',
           modalIsOpen: false,
-          koyn: 0,
-          koynsAvailable: 0,
           data: [],
-          winLoss: 0
+          buttonType: '0'
         };
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -65,31 +64,10 @@ class Dashboards extends Component {
     }
 
     async fetchData(){
-      const wagerData = await fetch('http://localhost:5000/getwager');
-      const currUserData = await fetch('http://localhost:5000/dashboard');
-      const jsonUser = await currUserData.json();
-      // console.log(jsonUser);
-      this.setState({koyn: jsonUser.userData.koyns});
-      this.setState({koynsAvailable: jsonUser.userData.koynsAvailable});
-
       const currData = await fetch('http://localhost:5000/currentmatch');
       const data = await currData.json();
-      
       this.setState({data: data.userData});
-
-      let wins = this.state.data.filter(item => {
-        return item.reviewStatus == 1;
-      });
-      let losses = this.state.data.filter(item => {
-        return item.reviewStatus == 2;
-      });
-      let ratio = wins.length/losses.length;
-      console.log(wins, losses.length);
-      if(wins.length === 0) {
-        this.setState({winLoss: 0});
-      } else {
-        this.setState({winLoss: ratio});
-      }
+      console.log(this.state.data);
     }
 
     loadData() {
@@ -133,6 +111,11 @@ class Dashboards extends Component {
       console.log('theKoyns', theKoyns);
     }
 
+    getButtonType(e){
+      let key = e.target.attributes.getNamedItem('data-key').value;
+      this.setState({buttonType: key});
+    }
+
     // reset email
     resetEmail() {
       console.log('reset email is: ', this.state.userEmail);
@@ -158,13 +141,6 @@ class Dashboards extends Component {
       this.setState({modalIsOpen: false});
     }
 
-    componentWillMount() {
-
-    }
-    componentWillUnmount() {
-
-    }
-
     handleSubmit(e) {
       e.preventDefault();
       //on submit, set data in firebase equal to this new data
@@ -177,35 +153,12 @@ class Dashboards extends Component {
         return (
           <div>
             <div className="Dashboard">
-              <div className="widgRow">
-                <div className="WidgetItem">
-                  <h4>KoynCount</h4>
-                  <Badge>Koyns: {this.state.koyn}</Badge><br/>
-                  <Badge>Koyns available: {this.state.koynsAvailable}</Badge>
-                </div>
-                <div className="WidgetItem">
-                  <h4>TotalMatchesPlayed</h4>
-                  <Badge>{this.state.data.length}</Badge>
-                </div>
-                <div className="WidgetItem">
-                  <h4>AboutMatches</h4>
-                  <Link to="/activegame"><Badge>Start a match</Badge></Link>
-                  <Link to="/currentmatch"><Badge>View match data</Badge></Link>
-                </div>
-                <div className="WidgetItem">
-                  <h4>WinLossRatio</h4>
-                  <Badge>{this.state.winLoss}</Badge>
-                </div>
-                <div className="WidgetItem">
-                  <h4>EditAccount</h4>
-                  <Badge>Edit email</Badge>
-                  <Badge>Edit password</Badge>
-                  <Badge>Edit address</Badge>
-                  <Badge>Edit payment info</Badge>
-                  <Badge>Edit preferred system</Badge>
-                </div>
-                <PrizeCarousel />
-              </div>
+              <ButtonGroup className="buttonGroup" onClick={this.getButtonType.bind(this)} aria-label="Basic example">
+                <Button data-key='0' variant="secondary">Pending</Button>
+                <Button data-key='1' variant="secondary">Wins</Button>
+                <Button data-key='2' variant="secondary">Losses</Button>
+              </ButtonGroup>
+              <EachCurrentMatch buttonType={this.state.buttonType} data={this.state.data}/>
             </div>
           </div>
         );

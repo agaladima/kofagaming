@@ -25,6 +25,22 @@
   text-align: center;
 }
 
+.CardItem {
+  width: auto;
+  border: 1px solid #ababab;
+  margin: 1%;
+  border-radius: 5px;
+  color: purple;
+  text-align: left;
+  padding: 1%;
+  display: inline-block;
+}
+
+.CardRow {
+  flex-wrap: wrap;
+  width: auto;
+}
+
 .CarouselDiv {
   margin-top: 10px;
   border: 1px solid #ababab;
@@ -33,6 +49,10 @@
   display: flex;
   width: 100%;
   text-align: center;
+}
+
+.buttonGroup {
+  margin: 10px;
 }
 
 .navbar {
